@@ -1,16 +1,16 @@
-title:              Clean Blog
-email:              your-email@example.com
-description:        A Blog Theme by Start Bootstrap
-author:             Start Bootstrap
-baseurl:            "/startbootstrap-clean-blog-jekyll"
-url:                "https://startbootstrap.github.io"
+title:              Malware Analysis Reports
+email:              jasongocotano@gmail.com
+description:        A specialized blog dedicated to the in-depth exploration of malware analysis, reverse engineering, and cybersecurity research. Whether you're a seasoned analyst, a cybersecurity student, or a curious tech enthusiast, this blog offers a wealth of knowledge to help you understand the inner workings of malicious software.
+author:             Kriticko29
+baseurl:            "/Hexorcist"
+url:                "https://kriticko29.github.io"
 
 # Social Profiles
-twitter_username:   SBootstrap
-github_username:    StartBootstrap
-facebook_username:  StartBootstrap
-instagram_username:  
-linkedin_username:
+twitter_username:   cjgeollegue
+github_username:    Kriticko29
+facebook_username:  Cjgeollegue
+instagram_username:  CjGeollegue
+linkedin_username:  Cjgeollegue
 
 # Add your google-analytics ID here to activate google analytics
 google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
