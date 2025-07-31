@@ -16,10 +16,13 @@ background: '/img/bg-about.jpg'
 
 <h2 class="section-heading">Technical Analysis</h2>
 
-<p>The sample is a <strong>.NET compiled executable</strong> posing as a benign application. It uses the filename <code>Remington.exe</code> and begins execution by performing local system reconnaissance before establishing outbound communication.</p>
+<p>The sample is a <strong>.NET compiled executable</strong> posing as a benign application. It uses the filename <code>Remington.exe</code> and contains multiple unreadable function names. Malware begins execution by performing local system reconnaissance before establishing outbound communication.</p>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the file metadata.</span>
+
+<img class="img-fluid" src="/img/posts/Snakekey/2.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the Main Code.</span>
 
 <h3>Stage 1: System Recon and Telegram C2</h3>
 
@@ -36,8 +39,8 @@ background: '/img/bg-about.jpg'
 
 <p>This simple yet effective communication mechanism allows attackers to monitor infections in real-time without requiring their own backend infrastructure.</p>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/3.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the network connection to malicious Telegram URL.</span>
 
 <h3>Stage 2: Browser Process Termination</h3>
 
@@ -52,8 +55,8 @@ background: '/img/bg-about.jpg'
 
 <p>This ensures exclusive access to local storage files such as <code>Login Data</code> and <code>Cookies</code>, which are typically locked while the browser is running.</p>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/4.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the browser process termination.</span>
 
 <h3>Stage 3: Outlook Registry Credential Harvesting</h3>
 
@@ -67,15 +70,15 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
 
 <p>The gathered data is then concatenated into a predefined message format and sent to the attacker.</p>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/5.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the Credential Harvisting through Outlook registries.</span>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/6.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the formatting of Credentials havested for exfiltration.</span>
 
 <h3>Stage 4: Email Client Credential Theft</h3>
 
-<p>Besides Outlook, the malware also attempts to extract credentials from other email clients. The targeted applications include:</p>
+<p>Besides Outlook, the malware also attempts to extract credentials from other email clients by terminating any running instance of the application. The targeted applications include:</p>
 
 <ul>
   <li>FoxMail</li>
@@ -85,8 +88,8 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
 
 <p>It locates configuration files or registry entries specific to these applications to extract saved login credentials for IMAP, SMTP, or POP3 accounts.</p>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/7.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the process termination of other mailing applications.</span>
 
 <h3>Stage 5: Browser Data Harvesting</h3>
 
@@ -96,6 +99,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
   <li>Saved login credentials (from <code>Login Data</code>)</li>
   <li>Autofill information (addresses, phone numbers, etc.)</li>
   <li>Payment/card details</li>
+  <li>Network Cookies</li>
   <li>Browsing history and visit frequency</li>
   <li>Top visited websites</li>
   <li>Download history</li>
@@ -148,16 +152,21 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
   </div>
 </div>
 
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
-<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
-<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/8.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved login credentials.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/9.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved network cookies.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/10.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved payment/card details.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/11.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved Autofill information.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/12.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting Browsing history and visit frequency.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/13.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved Top visited websites.</span>
+<img class="img-fluid" src="/img/posts/Snakekey/14.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the harvesting browser saved Download history.</span>
+
 
 <h2 class="section-heading">Conclusion</h2>
 
