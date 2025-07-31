@@ -3,7 +3,7 @@ layout: post
 title: "Latest Snake Keylogger Variant Infostealer Campaign"
 subtitle: "Unpacking a .NET-compiled Snake Keylogger variant that steals browser and email credentials while communicating via Telegram API"
 date: 2025-07-31 16:30:00 +0800
-background: '/img/posts/bg-about.jpg'
+background: '/img/bg-about.jpg'
 ---
 
 <h2>Introduction</h2>
@@ -18,7 +18,8 @@ background: '/img/posts/bg-about.jpg'
 
 <p>The sample is a <strong>.NET compiled executable</strong> posing as a benign application. It uses the filename <code>Remington.exe</code> and begins execution by performing local system reconnaissance before establishing outbound communication.</p>
 
-<p><em><Placeholder for screenshot of file properties></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h3>Stage 1: System Recon and Telegram C2</h3>
 
@@ -35,7 +36,8 @@ background: '/img/posts/bg-about.jpg'
 
 <p>This simple yet effective communication mechanism allows attackers to monitor infections in real-time without requiring their own backend infrastructure.</p>
 
-<p><em><Placeholder for traffic capture screenshot></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h3>Stage 2: Browser Process Termination</h3>
 
@@ -50,7 +52,8 @@ background: '/img/posts/bg-about.jpg'
 
 <p>This ensures exclusive access to local storage files such as <code>Login Data</code> and <code>Cookies</code>, which are typically locked while the browser is running.</p>
 
-<p><em><Placeholder for screenshot of the process termination code></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h3>Stage 3: Outlook Registry Credential Harvesting</h3>
 
@@ -64,7 +67,11 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
 
 <p>The gathered data is then concatenated into a predefined message format and sent to the attacker.</p>
 
-<p><em><Placeholder for code screenshot showing registry access and data formatting></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h3>Stage 4: Email Client Credential Theft</h3>
 
@@ -78,7 +85,8 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
 
 <p>It locates configuration files or registry entries specific to these applications to extract saved login credentials for IMAP, SMTP, or POP3 accounts.</p>
 
-<p><em><Placeholder for screenshot showing code that targets these applications></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h3>Stage 5: Browser Data Harvesting</h3>
 
@@ -140,7 +148,16 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows Messaging
   </div>
 </div>
 
-<p><em><Placeholder for screenshot showing data harvesting code></em></p>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
+<img class="img-fluid" src="/img/posts/CVE2017/1.png" alt="Descriptive Alt Text">
+<span class="caption text-muted">Screenshot of the fake invoice shown when the document was executed.</span>
 
 <h2 class="section-heading">Conclusion</h2>
 
