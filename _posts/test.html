@@ -1,0 +1,172 @@
+---
+layout: post
+title: "Credential Theft via SHTML Phishing Campaign: Multi-Stage Stealer Analysis"
+subtitle: "From Fake Downloads to Session Hijacking — How a Simple SHTML File Targets Corporate Credentials"
+date: 2025-08-21 13:20:00 +0800
+background: '/img/posts/shtml-phish.jpg'
+---
+
+<h2>Introduction</h2>
+<p>In the last week, I observed an unusual surge in <strong>SHTML-based phishing files</strong> specifically tailored to target enterprise users. These files are distributed via suspicious email attachments, masquerading as legitimate invoices or procurement-related documents, with the primary goal of stealing credentials and hijacking sessions to gain unauthorized access to corporate environments.</p>
+<p>In this post, I’ll break down the <strong>malware stealer behavior</strong>, analyzing both the <strong>blackbox execution flow</strong> and the <strong>whitebox internals</strong> of one such SHTML sample named <code>Quotation-Q-1993.shtml</code>. While the page appears crude at first glance, it packs a multi-layered phishing chain that leverages deception, dynamic branding, data exfiltration, and anti-analysis techniques.</p>
+
+<h2 class="section-heading">Static & Blackbox Analysis</h2>
+<p>The malicious file, typically disguised as a “quotation” or “invoice,” lures users into opening an SHTML page. Upon execution, the victim is presented with multiple document download options such as:</p>
+<ul>
+  <li>Company Profile</li>
+  <li>Company Registration Certificate</li>
+  <li>Order Technical Specifications (Excel format)</li>
+</ul>
+<p>When the victim clicks a button to download one of these documents, a fake download progress bar is displayed, stopping at <strong>75%</strong>. At this point, the victim is prompted to log in with their <strong>corporate email credentials</strong> to “complete the download.”</p>
+
+<img class="img-fluid" src="/img/posts/shtml/1.png" alt="Virustotal file sample">
+<span class="caption text-muted">Fig. 1 — SHTML sample submitted to VirusTotal</span>
+
+<img class="img-fluid" src="/img/posts/shtml/2.png" alt="SHTML file execution">
+<span class="caption text-muted">Fig. 2 — Fake invoice download page shown to victim</span>
+
+<p>Once entered, credentials are transmitted to a remote server. In this campaign, the data was sent to:</p>
+<p><code>hxxp://amon3y[.]com/pdf/test/file10.php</code></p>
+
+<img class="img-fluid" src="/img/posts/shtml/3.png" alt="Credential exfiltration">
+<span class="caption text-muted">Fig. 3 — Network capture showing exfiltration of stolen credentials</span>
+
+<p>Despite its simplicity, the phishing kit uses <strong>OneDrive logos and cloud-like UI elements</strong> to increase legitimacy. For less technical victims, this is convincing enough to submit credentials, especially when targeted with a pre-validated list of email addresses.</p>
+
+<h2 class="section-heading">Whitebox Analysis</h2>
+<p>Diving deeper into the code reveals a <strong>seven-stage phishing chain</strong> designed for persistence, deception, and enhanced data theft.</p>
+
+<h3>Stage 1: Fake Download Progress</h3>
+<img class="img-fluid" src="/img/posts/shtml/4.png" alt="Fake progress bar">
+<span class="caption text-muted">Fig. 4 — Fake progress bar stopping at 75%</span>
+<p><strong>What it does:</strong> Clicking “Download” shows a fake loading bar up to 75%, then halts.</p>
+<p><strong>Why:</strong> Forces users into believing login is required to resume, creating urgency and trust.</p>
+
+<h3>Stage 2: Credential Harvesting Form</h3>
+<img class="img-fluid" src="/img/posts/shtml/5.png" alt="Login prompt phishing">
+<span class="caption text-muted">Fig. 5 — Fake login prompt for corporate email</span>
+<p><strong>What it does:</strong> Captures username/password and sends them to the attacker’s PHP endpoint.</p>
+<p><strong>Evasion:</strong> If login is attempted twice, the victim is redirected to <code>outlook.live.com/owa/auth/errorFE.aspx</code>, simulating a Microsoft-side error.</p>
+<p><strong>Impact:</strong> Enables <strong>account takeover</strong> and potential lateral movement.</p>
+
+<h3>Stage 3: Dynamic Branding with Clearbit</h3>
+<img class="img-fluid" src="/img/posts/shtml/6.png" alt="Dynamic logo injection">
+<span class="caption text-muted">Fig. 6 — Logo fetched dynamically via Clearbit API</span>
+<p><strong>What it does:</strong> Fetches logos from <code>logo.clearbit.com</code> based on victim’s email domain.</p>
+<p><strong>Why:</strong> Makes phishing page appear customized to Gmail, Yahoo, or Office 365 users.</p>
+
+<h3>Stage 4: Cookie & Storage Exfiltration</h3>
+<img class="img-fluid" src="/img/posts/shtml/7.png" alt="Cookie and session stealing">
+<span class="caption text-muted">Fig. 7 — Script collecting cookies and storage data</span>
+<p><strong>What it does:</strong> Steals cookies, <code>localStorage</code>, <code>sessionStorage</code>, and browser fingerprint data.</p>
+<p><strong>Impact:</strong> Session hijacking, MFA bypass, and theft of stored tokens.</p>
+
+<h3>Stage 5: Stealth Logger & Fingerprinting</h3>
+<img class="img-fluid" src="/img/posts/shtml/8.png" alt="System profiling exfiltration">
+<span class="caption text-muted">Fig. 8 — System fingerprinting sent to attacker</span>
+<p><strong>What it does:</strong> Exfiltrates system locale, timezone, screen size, and referrer.</p>
+<p><strong>Why:</strong> Helps attackers identify high-value corporate targets and refine evasion.</p>
+
+<h3>Stage 6: Anti-Analysis & Lockdown</h3>
+<img class="img-fluid" src="/img/posts/shtml/9.png" alt="Developer tool blocking">
+<span class="caption text-muted">Fig. 9 — Anti-inspection script triggers fake legal notice</span>
+<p><strong>What it does:</strong> Blocks DevTools (F12), source view, right-click, and clipboard actions.</p>
+<p><strong>Deception:</strong> If tampering is detected, displays a fake legal warning to intimidate researchers.</p>
+
+<h3>Stage 7: Email Injection from URL</h3>
+<img class="img-fluid" src="/img/posts/shtml/10.png" alt="Prefilled login injection">
+<span class="caption text-muted">Fig. 10 — Email prefilled in phishing form via URL</span>
+<p><strong>What it does:</strong> Autofills the email field using query parameters (e.g., <code>?cms=victim@company.com</code>).</p>
+<p><strong>Why:</strong> Increases believability by tailoring the attack to specific individuals.</p>
+
+<h2 class="section-heading">Summary</h2>
+<p>This SHTML phishing campaign demonstrates how attackers combine <strong>simple deception with multi-layered data theft</strong>. Despite its unsophisticated design, it integrates:</p>
+<ul>
+  <li>Credential harvesting with realistic error redirection</li>
+  <li>Dynamic branding to match victim organizations</li>
+  <li>Session hijacking through cookie/storage theft</li>
+  <li>Anti-analysis measures to delay investigation</li>
+</ul>
+<p>These tactics show that even poorly crafted kits can cause <strong>severe corporate impact</strong> if email security and user awareness training are not enforced. Organizations should monitor for SHTML attachments, enforce phishing-resistant MFA, and analyze suspicious files in a controlled sandbox environment.</p>
+<h2>Introduction</h2>
+<p>In the last week, I observed an unusual surge in <strong>SHTML-based phishing files</strong> specifically tailored to target enterprise users. These files are distributed via suspicious email attachments, masquerading as legitimate invoices or procurement-related documents, with the primary goal of stealing credentials and hijacking sessions to gain unauthorized access to corporate environments.</p>
+<p>In this post, I’ll break down the <strong>malware stealer behavior</strong>, analyzing both the <strong>blackbox execution flow</strong> and the <strong>whitebox internals</strong> of one such SHTML sample named <code>Quotation-Q-1993.shtml</code>. While the page appears crude at first glance, it packs a multi-layered phishing chain that leverages deception, dynamic branding, data exfiltration, and anti-analysis techniques.</p>
+
+<h2 class="section-heading">Static & Blackbox Analysis</h2>
+<p>The malicious file, typically disguised as a “quotation” or “invoice,” lures users into opening an SHTML page. Upon execution, the victim is presented with multiple document download options such as:</p>
+<ul>
+  <li>Company Profile</li>
+  <li>Company Registration Certificate</li>
+  <li>Order Technical Specifications (Excel format)</li>
+</ul>
+<p>When the victim clicks a button to download one of these documents, a fake download progress bar is displayed, stopping at <strong>75%</strong>. At this point, the victim is prompted to log in with their <strong>corporate email credentials</strong> to “complete the download.”</p>
+
+<img class="img-fluid" src="/img/posts/shtml/1.png" alt="Virustotal file sample">
+<span class="caption text-muted">Fig. 1 — SHTML sample submitted to VirusTotal</span>
+
+<img class="img-fluid" src="/img/posts/shtml/2.png" alt="SHTML file execution">
+<span class="caption text-muted">Fig. 2 — Fake invoice download page shown to victim</span>
+
+<p>Once entered, credentials are transmitted to a remote server. In this campaign, the data was sent to:</p>
+<p><code>hxxp://amon3y[.]com/pdf/test/file10.php</code></p>
+
+<img class="img-fluid" src="/img/posts/shtml/3.png" alt="Credential exfiltration">
+<span class="caption text-muted">Fig. 3 — Network capture showing exfiltration of stolen credentials</span>
+
+<p>Despite its simplicity, the phishing kit uses <strong>OneDrive logos and cloud-like UI elements</strong> to increase legitimacy. For less technical victims, this is convincing enough to submit credentials, especially when targeted with a pre-validated list of email addresses.</p>
+
+<h2 class="section-heading">Whitebox Analysis</h2>
+<p>Diving deeper into the code reveals a <strong>seven-stage phishing chain</strong> designed for persistence, deception, and enhanced data theft.</p>
+
+<h3>Stage 1: Fake Download Progress</h3>
+<img class="img-fluid" src="/img/posts/shtml/4.png" alt="Fake progress bar">
+<span class="caption text-muted">Fig. 4 — Fake progress bar stopping at 75%</span>
+<p><strong>What it does:</strong> Clicking “Download” shows a fake loading bar up to 75%, then halts.</p>
+<p><strong>Why:</strong> Forces users into believing login is required to resume, creating urgency and trust.</p>
+
+<h3>Stage 2: Credential Harvesting Form</h3>
+<img class="img-fluid" src="/img/posts/shtml/5.png" alt="Login prompt phishing">
+<span class="caption text-muted">Fig. 5 — Fake login prompt for corporate email</span>
+<p><strong>What it does:</strong> Captures username/password and sends them to the attacker’s PHP endpoint.</p>
+<p><strong>Evasion:</strong> If login is attempted twice, the victim is redirected to <code>outlook.live.com/owa/auth/errorFE.aspx</code>, simulating a Microsoft-side error.</p>
+<p><strong>Impact:</strong> Enables <strong>account takeover</strong> and potential lateral movement.</p>
+
+<h3>Stage 3: Dynamic Branding with Clearbit</h3>
+<img class="img-fluid" src="/img/posts/shtml/6.png" alt="Dynamic logo injection">
+<span class="caption text-muted">Fig. 6 — Logo fetched dynamically via Clearbit API</span>
+<p><strong>What it does:</strong> Fetches logos from <code>logo.clearbit.com</code> based on victim’s email domain.</p>
+<p><strong>Why:</strong> Makes phishing page appear customized to Gmail, Yahoo, or Office 365 users.</p>
+
+<h3>Stage 4: Cookie & Storage Exfiltration</h3>
+<img class="img-fluid" src="/img/posts/shtml/7.png" alt="Cookie and session stealing">
+<span class="caption text-muted">Fig. 7 — Script collecting cookies and storage data</span>
+<p><strong>What it does:</strong> Steals cookies, <code>localStorage</code>, <code>sessionStorage</code>, and browser fingerprint data.</p>
+<p><strong>Impact:</strong> Session hijacking, MFA bypass, and theft of stored tokens.</p>
+
+<h3>Stage 5: Stealth Logger & Fingerprinting</h3>
+<img class="img-fluid" src="/img/posts/shtml/8.png" alt="System profiling exfiltration">
+<span class="caption text-muted">Fig. 8 — System fingerprinting sent to attacker</span>
+<p><strong>What it does:</strong> Exfiltrates system locale, timezone, screen size, and referrer.</p>
+<p><strong>Why:</strong> Helps attackers identify high-value corporate targets and refine evasion.</p>
+
+<h3>Stage 6: Anti-Analysis & Lockdown</h3>
+<img class="img-fluid" src="/img/posts/shtml/9.png" alt="Developer tool blocking">
+<span class="caption text-muted">Fig. 9 — Anti-inspection script triggers fake legal notice</span>
+<p><strong>What it does:</strong> Blocks DevTools (F12), source view, right-click, and clipboard actions.</p>
+<p><strong>Deception:</strong> If tampering is detected, displays a fake legal warning to intimidate researchers.</p>
+
+<h3>Stage 7: Email Injection from URL</h3>
+<img class="img-fluid" src="/img/posts/shtml/10.png" alt="Prefilled login injection">
+<span class="caption text-muted">Fig. 10 — Email prefilled in phishing form via URL</span>
+<p><strong>What it does:</strong> Autofills the email field using query parameters (e.g., <code>?cms=victim@company.com</code>).</p>
+<p><strong>Why:</strong> Increases believability by tailoring the attack to specific individuals.</p>
+
+<h2 class="section-heading">Summary</h2>
+<p>This SHTML phishing campaign demonstrates how attackers combine <strong>simple deception with multi-layered data theft</strong>. Despite its unsophisticated design, it integrates:</p>
+<ul>
+  <li>Credential harvesting with realistic error redirection</li>
+  <li>Dynamic branding to match victim organizations</li>
+  <li>Session hijacking through cookie/storage theft</li>
+  <li>Anti-analysis measures to delay investigation</li>
+</ul>
+<p>These tactics show that even poorly crafted kits can cause <strong>severe corporate impact</strong> if email security and user awareness training are not enforced. Organizations should monitor for SHTML attachments, enforce phishing-resistant MFA, and analyze suspicious files in a controlled sandbox environment.</p>
